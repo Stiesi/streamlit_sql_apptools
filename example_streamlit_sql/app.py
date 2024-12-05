@@ -2,6 +2,9 @@ import streamlit as st
 from streamlit_sql import ModelOpts, show_sql_ui
 from dotenv import load_dotenv
 import os
+import sys
+
+sys.path.append(os.path.abspath("."))
 from example_streamlit_sql import db, restart_db
 
 st.set_page_config("Example streamlit_sql app", layout="wide")
