@@ -1,6 +1,4 @@
 import os
-from datetime import date
-from typing import Optional
 from dotenv import load_dotenv
 
 from sqlalchemy import Engine, ForeignKey, create_engine
@@ -8,7 +6,6 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
-    Relationship,
     mapped_column,
     relationship,
 )
@@ -57,9 +54,7 @@ def create_tables(engine: Engine):
 
 
 if __name__ == "__main__":
-    load_dotenv(".env")
-    db_path = os.environ["ST_DB_PATH"]
-
+    db_path = "sqlite:///data.db"
     if not database_exists(db_path):
         create_database(db_path)
         url = make_url(db_path)

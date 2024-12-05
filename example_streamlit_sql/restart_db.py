@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
+from sqlalchemy_utils import database_exists
 
 
 def create_address(session: Session):
@@ -34,6 +35,19 @@ def create_people(session: Session):
         session.add(person)
 
     session.commit()
+
+
+def restart_db():
+    print("Creating sqlite database and generating fake data")
+    db_path = "sqlite:///data.db"
+    if not database_exists(db_path):
+        engine = db.new_engine(db_path)
+        db.Base.metadata.drop_all(engine)
+        db.Base.metadata.create_all(engine)
+
+        with Session(engine) as s:
+            create_address(s)
+            create_people(s)
 
 
 if __name__ == "__main__":
