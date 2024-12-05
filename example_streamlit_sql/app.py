@@ -7,6 +7,7 @@ import sys
 sys.path.append(os.path.abspath("."))
 from example_streamlit_sql import db, restart_db
 
+
 st.set_page_config("Example streamlit_sql app", layout="wide")
 load_dotenv(".env")
 deploy = os.environ["DEPLOY"]
@@ -17,7 +18,33 @@ if deploy == "cloud":
 db_path = "sqlite:///data.db"
 conn = st.connection("sql", url=db_path)
 
-st.header("Example application using streamlit_sql")
+header_col1, header_col2 = st.columns([8, 4])
+header_col1.header("Example application using streamlit_sql")
+with header_col2.popover("Show the code"):
+    st.code(
+        """
+    address_model = ModelOpts(db.Address)
+    person_model = ModelOpts(
+        Model=db.Person,
+        rolling_total_column="annual_income",
+        read_use_container_width=True,
+    )
+
+    models = [address_model, person_model]
+    show_sql_ui(conn, models)
+    """,
+        language="python",
+        line_numbers=True,
+    )
+
+
+btn_col1, btn_col2 = st.sidebar.columns(2)
+btn_col1.link_button(
+    "Github", url="https://github.com/edkedk99/streamlit_sql", icon=":material/code:"
+)
+btn_col2.link_button(
+    "Docs", url="https://edkedk99.github.io/streamlit_sql/", icon=":material/menu_book:"
+)
 
 address_model = ModelOpts(db.Address)
 person_model = ModelOpts(
