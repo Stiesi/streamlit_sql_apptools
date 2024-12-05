@@ -1,0 +1,12 @@
+# Normal requirement
+python-dateutil
+pandas
+python-dotenv
+
+
+psycopg2-binary
+sqlalchemy
+sqlalchemy_utils
+
+streamlit_sql
+Faker
