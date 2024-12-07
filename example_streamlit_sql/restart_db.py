@@ -5,6 +5,8 @@ import os
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 from sqlalchemy_utils import database_exists
+import streamlit as st
+from datetime import date
 
 
 def create_address(session: Session):
@@ -37,6 +39,7 @@ def create_people(session: Session):
     session.commit()
 
 
+@st.cache_resource
 def restart_db():
     print("Creating sqlite database and generating fake data")
     db_path = "sqlite:///data.db"
@@ -48,6 +51,9 @@ def restart_db():
         with Session(engine) as s:
             create_address(s)
             create_people(s)
+
+    today = date.today()
+    return today
 
 
 if __name__ == "__main__":

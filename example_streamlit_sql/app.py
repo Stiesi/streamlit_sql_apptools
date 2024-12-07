@@ -3,6 +3,7 @@ from streamlit_sql import ModelOpts, show_sql_ui
 from dotenv import load_dotenv
 import os
 import sys
+from datetime import date
 
 sys.path.append(os.path.abspath("."))
 from example_streamlit_sql import db, restart_db
@@ -10,9 +11,11 @@ from example_streamlit_sql import db, restart_db
 
 st.set_page_config("Example streamlit_sql app", layout="wide")
 load_dotenv(".env")
-deploy = os.environ["DEPLOY"]
 
-if deploy == "cloud":
+restarted_date = restart_db.restart_db()
+today = date.today()
+if today > restarted_date:
+    restart_db.clear()  # pyright: ignore
     restart_db.restart_db()
 
 db_path = "sqlite:///data.db"
