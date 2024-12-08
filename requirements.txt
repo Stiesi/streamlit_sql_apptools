@@ -8,5 +8,5 @@ psycopg2-binary
 sqlalchemy
 sqlalchemy_utils
 
-streamlit_sql==0.1.6
+streamlit_sql==0.1.7
 Faker
