@@ -15,7 +15,7 @@ load_dotenv(".env")
 restarted_date = restart_db.restart_db()
 today = date.today()
 if today > restarted_date:
-    restart_db.clear()  # pyright: ignore
+    restart_db.restart_db.clear()  # pyright: ignore
     restart_db.restart_db()
 
 db_path = "sqlite:///data.db"
