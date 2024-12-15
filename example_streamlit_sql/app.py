@@ -1,9 +1,10 @@
 import streamlit as st
-from streamlit_sql import ModelOpts, show_sql_ui
+from streamlit_sql import show_sql_ui
 from dotenv import load_dotenv
 import os
 import sys
 from datetime import date
+from sqlalchemy import select
 
 sys.path.append(os.path.abspath("."))
 from example_streamlit_sql import db, restart_db
@@ -49,12 +50,25 @@ btn_col2.link_button(
     "Docs", url="https://edkedk99.github.io/streamlit_sql/", icon=":material/menu_book:"
 )
 
-address_model = ModelOpts(db.Address)
-person_model = ModelOpts(
-    Model=db.Person,
-    rolling_total_column="annual_income",
-    read_use_container_width=True,
-)
 
-models = [address_model, person_model]
-show_sql_ui(conn, models)
+stmt = (
+    select(
+        db.Person.id,
+        db.Person.name,
+        db.Person.age,
+        db.Person.annual_income,
+        db.Person.likes_soccer,
+        db.Address.city,
+        db.Address.country,
+    )
+    .select_from(db.Person)
+    .join(db.Address)
+    .where(db.Person.age > 10)
+    .order_by(db.Person.name)
+)
+show_sql_ui(
+    conn=conn,
+    read_instance=stmt,
+    edit_create_model=db.Person,
+    available_filter=["name", "country"],
+)
