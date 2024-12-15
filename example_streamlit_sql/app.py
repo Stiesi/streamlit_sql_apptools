@@ -27,15 +27,31 @@ header_col1.header("Example application using streamlit_sql")
 with header_col2.popover("Show the code"):
     st.code(
         """
-    address_model = ModelOpts(db.Address)
-    person_model = ModelOpts(
-        Model=db.Person,
-        rolling_total_column="annual_income",
-        read_use_container_width=True,
-    )
+from streamlit_sql import show_sql_ui
+from sqlalchemy import select
 
-    models = [address_model, person_model]
-    show_sql_ui(conn, models)
+conn = st.connection("sql", url="<db_url>")
+
+stmt = (
+    select(
+        db.Invoice.id,
+        db.Invoice.Date,
+        db.Invoice.amount,
+        db.Client.name,
+    )
+    .join(db.Client)
+    .where(db.Invoice.amount > 1000)
+    .order_by(db.Invoice.date)
+)
+
+show_sql_ui(conn=conn,
+            read_instance=stmt,
+            edit_create_model=db.Invoice,
+            available_filter=["name"],
+            rolling_total_column="amount",
+)
+
+show_sql_ui(conn, model_opts)
     """,
         language="python",
         line_numbers=True,
