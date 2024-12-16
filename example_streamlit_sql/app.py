@@ -86,5 +86,6 @@ show_sql_ui(
     conn=conn,
     read_instance=stmt,
     edit_create_model=db.Person,
+    rolling_total_column="annual_income",
     available_filter=["name", "country"],
 )
