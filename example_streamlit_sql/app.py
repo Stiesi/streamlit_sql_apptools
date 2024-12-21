@@ -5,6 +5,7 @@ import os
 import sys
 from datetime import date
 from sqlalchemy import select
+import pandas as pd
 
 sys.path.append(os.path.abspath("."))
 from example_streamlit_sql import db, restart_db
@@ -24,38 +25,6 @@ conn = st.connection("sql", url=db_path)
 
 header_col1, header_col2 = st.columns([8, 4])
 header_col1.header("Example application using streamlit_sql")
-with header_col2.popover("Show the code"):
-    st.code(
-        """
-from streamlit_sql import show_sql_ui
-from sqlalchemy import select
-
-conn = st.connection("sql", url="<db_url>")
-
-stmt = (
-    select(
-        db.Invoice.id,
-        db.Invoice.Date,
-        db.Invoice.amount,
-        db.Client.name,
-    )
-    .join(db.Client)
-    .where(db.Invoice.amount > 1000)
-    .order_by(db.Invoice.date)
-)
-
-show_sql_ui(conn=conn,
-            read_instance=stmt,
-            edit_create_model=db.Invoice,
-            available_filter=["name"],
-            rolling_total_column="amount",
-)
-
-show_sql_ui(conn, model_opts)
-    """,
-        language="python",
-        line_numbers=True,
-    )
 
 
 btn_col1, btn_col2 = st.sidebar.columns(2)
@@ -67,25 +36,55 @@ btn_col2.link_button(
 )
 
 
-stmt = (
-    select(
-        db.Person.id,
-        db.Person.name,
-        db.Person.age,
-        db.Person.annual_income,
-        db.Person.likes_soccer,
-        db.Address.city,
-        db.Address.country,
+def Person():
+    def fill_by_age(row: pd.Series):
+        if row.age > 30:
+            style = "background-color: cyan"
+        else:
+            style = "background-color: pink"
+
+        result = [style] * len(row)
+        return result
+
+    stmt = (
+        select(
+            db.Person.id,
+            db.Person.name,
+            db.Person.age,
+            db.Person.annual_income,
+            db.Person.likes_soccer,
+            db.Address.city,
+            db.Address.country,
+        )
+        .select_from(db.Person)
+        .join(db.Address)
+        .where(db.Person.age > 10)
+        .order_by(db.Person.name)
     )
-    .select_from(db.Person)
-    .join(db.Address)
-    .where(db.Person.age > 10)
-    .order_by(db.Person.name)
-)
-show_sql_ui(
-    conn=conn,
-    read_instance=stmt,
-    edit_create_model=db.Person,
-    rolling_total_column="annual_income",
-    available_filter=["name", "country"],
-)
+    show_sql_ui(
+        conn=conn,
+        read_instance=stmt,
+        edit_create_model=db.Person,
+        rolling_total_column="annual_income",
+        available_filter=["name", "country"],
+        style_fn=fill_by_age,
+    )
+
+
+def Address():
+    stmt = select(db.Address)
+    show_sql_ui(
+        conn=conn,
+        read_instance=stmt,
+        edit_create_model=db.Address,
+        update_show_many=True,
+    )
+
+
+pages = [
+    st.Page(Person, title="Person Table"),
+    st.Page(Address, title="Address Table"),
+]
+
+page = st.navigation(pages)
+page.run()
