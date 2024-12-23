@@ -43,7 +43,7 @@ author_email = ""
 name = "example_streamlit_sql"
 version = "0.1.0"
 # readme= "docs/README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.13"
 license = {text = "MIT License"}
 dependencies = [
     "python-dateutil",
