@@ -3,8 +3,8 @@ python-dateutil
 pandas
 python-dotenv
 
-
-psycopg2-binary
+#psycopg2-binary
+aiosqlite
 sqlalchemy
 sqlalchemy_utils
 

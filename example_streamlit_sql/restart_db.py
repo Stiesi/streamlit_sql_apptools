@@ -1,5 +1,6 @@
 from faker import Faker
-from example_streamlit_sql import db
+#from example_streamlit_sql import db_jj as db
+import db_jj as db
 from dotenv import load_dotenv
 import os
 from sqlalchemy.orm import Session
@@ -9,48 +10,66 @@ import streamlit as st
 from datetime import date
 
 
-def create_address(session: Session):
+def create_user(session: Session):
     fake = Faker()
     for i in range(1000):
-        address = db.Address(
-            street=fake.street_name(),
-            city=fake.city(),
-            country=fake.country(),
+        user = db.User(
+            user_name=fake.user_name(),
+            last_name=fake.last_name(),
+            first_name=fake.first_name(),
+            apptools=[]
         )
-        session.add(address)
+        session.add(user)
 
     session.commit()
 
 
-def create_people(session: Session):
+def create_apptool(session: Session):
     fake = Faker()
-    for i in range(1000):
-        stmt = select(db.Address.id).order_by(func.random()).limit(1)
-        address_id = session.execute(stmt).scalar_one()
+    for i in range(100):
+#        stmt = select(db.AppTool.id).order_by(func.random()).limit(1)
+#        user_id = session.execute(stmt).scalar_one()
 
-        person = db.Person(
-            name=fake.name(),
-            age=int(fake.numerify("##")),
-            annual_income=float(fake.numerify("###.##")),
-            address_id=address_id,
+        apptool = db.AppTool(
+            name=fake.city(),
+            link_prod=fake.uri_path(),
+            link_git=fake.url(),            
         )
-        session.add(person)
+        session.add(apptool)
 
     session.commit()
+
+def create_appuser(session: Session):
+    fake = Faker()
+    for i in range(1000):
+        stmt = select(db.AppTool.id).order_by(func.random()).limit(1)
+        apptool_id = session.execute(stmt).scalar_one()
+        stmt = select(db.User.id).order_by(func.random()).limit(1)
+        user_id = session.execute(stmt).scalar_one()
+
+        appuser = db.AppUser(
+            user_id = user_id,
+            app_id=apptool_id,
+        )
+        session.add(appuser)
+
+    session.commit()
+
 
 
 @st.cache_resource
 def restart_db():
     print("Creating sqlite database and generating fake data")
-    db_path = "sqlite:///data.db"
+    db_path = "sqlite:///./data.db"
     if not database_exists(db_path):
         engine = db.new_engine(db_path)
         db.Base.metadata.drop_all(engine)
         db.Base.metadata.create_all(engine)
 
         with Session(engine) as s:
-            create_address(s)
-            create_people(s)
+            create_user(s)
+            create_apptool(s)
+            create_appuser(s)
 
     today = date.today()
     return today
@@ -58,11 +77,13 @@ def restart_db():
 
 if __name__ == "__main__":
     load_dotenv(".env")
-    db_path = os.environ["ST_DB_PATH"]
+    #db_path = os.environ["ST_DB_PATH"]
+    db_path = "sqlite:///./data.db"
     engine = db.new_engine(db_path)
     db.Base.metadata.drop_all(engine)
     db.Base.metadata.create_all(engine)
 
     with Session(engine) as s:
-        create_address(s)
-        create_people(s)
+        create_user(s)
+        create_apptool(s)
+        create_appuser(s)

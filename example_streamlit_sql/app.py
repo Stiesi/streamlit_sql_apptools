@@ -8,7 +8,8 @@ from sqlalchemy import select
 import pandas as pd
 
 sys.path.append(os.path.abspath("."))
-from example_streamlit_sql import db, restart_db
+from example_streamlit_sql import restart_db
+from example_streamlit_sql import db_jj as db
 
 
 st.set_page_config("Example streamlit_sql app", layout="wide")
@@ -20,7 +21,7 @@ if today > restarted_date:
     restart_db.restart_db.clear()  # pyright: ignore
     restart_db.restart_db()
 
-db_path = "sqlite:///data.db"
+db_path = "sqlite:///./data.db"
 conn = st.connection("sql", url=db_path)
 
 header_col1, header_col2 = st.columns([8, 4])
@@ -36,54 +37,66 @@ btn_col2.link_button(
 )
 
 
-def Person():
-    def fill_by_age(row: pd.Series):
-        if row.age > 30:
+def User():
+    def fill_by_2(row: pd.Series):
+        nlen = len(row)
+        res = [ "background-color: cyan" if i%2==1 else "background-color: pink" for i in range(nlen)] 
+        return res
+    
+    def fill_by_value(row: pd.Series):
+        if row.id > 4:
             style = "background-color: cyan"
         else:
             style = "background-color: pink"
 
         result = [style] * len(row)
         return result
-
+    
     stmt = (
         select(
-            db.Person.id,
-            db.Person.name,
-            db.Person.age,
-            db.Person.annual_income,
-            db.Person.likes_soccer,
-            db.Address.city,
-            db.Address.country,
+            db.User.id,
+            db.User.user_name,
+            db.User.first_name,
+            db.User.last_name,
         )
-        .select_from(db.Person)
-        .join(db.Address)
-        .where(db.Person.age > 10)
-        .order_by(db.Person.name)
+        .select_from(db.User)
+        #.join(db.apptools)
+        #.where(db.Person.age > 10)
+        .order_by(db.User.user_name)
     )
     show_sql_ui(
         conn=conn,
         read_instance=stmt,
-        edit_create_model=db.Person,
-        rolling_total_column="annual_income",
-        available_filter=["name", "country"],
-        style_fn=fill_by_age,
+        edit_create_model=db.User,
+        #rolling_total_column="annual_income",
+        available_filter=["user_name", "apptools"],
+        style_fn=fill_by_2,
     )
 
 
-def Address():
-    stmt = select(db.Address)
+def Apptool():
+    stmt = select(db.AppTool)
     show_sql_ui(
         conn=conn,
         read_instance=stmt,
-        edit_create_model=db.Address,
+        edit_create_model=db.AppTool,
+        update_show_many=True,
+    )
+
+def AppUser():
+    stmt = select(db.AppUser)
+    show_sql_ui(
+        conn=conn,
+        read_instance=stmt,
+        edit_create_model=db.AppUser,
         update_show_many=True,
     )
 
 
 pages = [
-    st.Page(Person, title="Person Table"),
-    st.Page(Address, title="Address Table"),
+    st.Page(User, title="User Table"),
+    st.Page(Apptool, title="Apptool Table"),
+    st.Page(AppUser, title="Apptool- user Table"),
 ]
 
 page = st.navigation(pages)

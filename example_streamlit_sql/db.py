@@ -54,7 +54,7 @@ def create_tables(engine: Engine):
 
 
 if __name__ == "__main__":
-    db_path = "sqlite:///data.db"
+    db_path = "sqlite:///./data.db"
     if not database_exists(db_path):
         create_database(db_path)
         url = make_url(db_path)
