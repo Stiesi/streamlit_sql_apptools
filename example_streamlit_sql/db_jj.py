@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-from sqlalchemy import Engine, ForeignKey, create_engine
+from sqlalchemy import Engine, ForeignKey, create_engine,PrimaryKeyConstraint
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -23,7 +23,8 @@ class AppTool(Base):
     link_prod: Mapped[str]
     link_git: Mapped[str]  = mapped_column(unique=True)
 
-    users: Mapped[list["User"]] = relationship(secondary="_appuser",back_populates="apptools")
+    #users: Mapped[list["User"]] = relationship(secondary="_appuser",back_populates="apptools")
+    users: Mapped[list["User"]] = relationship("User",secondary="_appuser",back_populates="apptools")
 
     def __str__(self) -> str:
         return f"{self.name}, {self.link_git}"
@@ -38,20 +39,22 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=False)
     is_admin: Mapped[bool] = mapped_column(default=False)
 
-    apptools: Mapped[list["AppTool"]] = relationship(secondary="_appuser",back_populates="users")
+    apptools: Mapped[list[AppTool]] = relationship(secondary="_appuser",back_populates="users")
 
     def __str__(self):
         return self.user_name
 
 class AppUser(Base):
     __tablename__="_appuser"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)    
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     app_id:  Mapped[int] = mapped_column(ForeignKey("apptool.id"))
 
     def __str__(self):
         return f"{self.user_id} , {self.app_id}"
-
+    
+    def __repr__(self):
+        return f"{self.user_id} , {self.app_id}"
 
 
 def new_engine(db_path: str):
@@ -74,4 +77,4 @@ if __name__ == "__main__":
 
     engine = new_engine(db_path)
     create_tables(engine)
-    print("criado")
+    print("created")

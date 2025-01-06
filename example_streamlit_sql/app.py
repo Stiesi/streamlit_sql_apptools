@@ -58,19 +58,23 @@ def User():
             db.User.user_name,
             db.User.first_name,
             db.User.last_name,
+            #db.User.apptools,
         )
         .select_from(db.User)
-        #.join(db.apptools)
-        #.where(db.Person.age > 10)
+        #.join(db.AppTool.id)
+        #.where(db.AppUser.user_id == db.User.id)
         .order_by(db.User.user_name)
     )
     show_sql_ui(
         conn=conn,
         read_instance=stmt,
+        #read_instance=db.User,
         edit_create_model=db.User,
         #rolling_total_column="annual_income",
         available_filter=["user_name", "apptools"],
+        base_key="usr",        
         style_fn=fill_by_2,
+        update_show_many=True
     )
 
 
@@ -84,7 +88,10 @@ def Apptool():
     )
 
 def AppUser():
-    stmt = select(db.AppUser)
+    stmt = (select(db.User.user_name,
+                  db.AppTool.name).select_from(db.User)
+                .join(db.AppUser)
+    )
     show_sql_ui(
         conn=conn,
         read_instance=stmt,
@@ -96,7 +103,7 @@ def AppUser():
 pages = [
     st.Page(User, title="User Table"),
     st.Page(Apptool, title="Apptool Table"),
-    st.Page(AppUser, title="Apptool- user Table"),
+    #st.Page(AppUser, title="Apptool- user Table"),
 ]
 
 page = st.navigation(pages)

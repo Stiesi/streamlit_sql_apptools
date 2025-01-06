@@ -80,10 +80,26 @@ if __name__ == "__main__":
     #db_path = os.environ["ST_DB_PATH"]
     db_path = "sqlite:///./data.db"
     engine = db.new_engine(db_path)
-    db.Base.metadata.drop_all(engine)
-    db.Base.metadata.create_all(engine)
 
+    if 0:
+        db.Base.metadata.drop_all(engine)
+        db.Base.metadata.create_all(engine)
+        with Session(engine) as s:
+            create_user(s)
+            create_apptool(s)
+            create_appuser(s)
+
+    # test some statements
+    # 
+    stmt = select(db.User)#.join(db.AppUser.user_id, db.User.id).join(db.AppUser.app_id,db.AppTool.id)
+    print(stmt)
     with Session(engine) as s:
-        create_user(s)
-        create_apptool(s)
-        create_appuser(s)
+        data = s.execute(stmt).all()
+        print(data[0][0])
+        user1 = s.query(db.User).filter_by(user_name='james50').first()
+        apps = [app.name for app in user1.apptools]
+        print(apps)
+
+        app1 = s.query(db.AppTool).filter_by(name='Martinburgh').first()
+        apps = [user.user_name for user in app1.users]
+        print(apps)
