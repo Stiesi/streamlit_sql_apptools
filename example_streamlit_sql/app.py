@@ -90,18 +90,33 @@ def Apptool():
         update_show_many=True,
     )
 
-def AppUser():
-    stmt = (select(db.User.user_name,
-                  db.AppTool.name).select_from(db.User)
-                .join(db.AppUser)
-    )
+def AppUser_bak():
+    stmt = select(db.AppUser)
     show_sql_ui(
         conn=conn,
         read_instance=stmt,
+        hide_id=False,
         edit_create_model=db.AppUser,
         update_show_many=True,
     )
-
+def AppUser():
+    stmt = select(db.User.id,db.User.user_name,db.User.last_name)
+    #.where()
+    with conn.session as s:
+        data = s.execute(stmt).fetchall()
+    #st.dataframe(data)
+    df = pd.DataFrame(data,columns=['id','user_','last_name'])
+    event = st.dataframe(df,selection_mode='single-row',key="jjdata",on_select='rerun')
+    if event.selection['rows']:
+        row = event.selection['rows'][0]
+        user = df.iloc[row]
+        st.write(user)
+        with conn.session as s:
+            
+            apps=s.execute(select(db.AppTool.name).where(db.AppUser.user_id == int(user.id))).fetchall()
+            apps = [apt for apt in apps]
+            st.write(apps)
+    
 
 pages = [
     st.Page(User, title="User Table"),
