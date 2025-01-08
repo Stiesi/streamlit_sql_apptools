@@ -16,39 +16,48 @@ class Base(DeclarativeBase):
     pass
 
 
+
+class User(Base):
+    __tablename__ = "user_table"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_name: Mapped[str] = mapped_column(unique=True)
+    first_name: Mapped[str]
+    last_name: Mapped[str]
+    is_active: Mapped[bool] = mapped_column(default=False)
+    is_admin: Mapped[bool] = mapped_column(default=False)
+
+    #apptools_ids: Mapped[int] = mapped_column(ForeignKey("apptool_table.id"))
+
+    #apptools: Mapped[list["AppTool"]] = relationship(back_populates="users")
+    apptools: Mapped[list["AppTool"]] = relationship(secondary="_appuser",back_populates="users")
+
+    def __str__(self):
+        return self.user_name
+
 class AppTool(Base):
-    __tablename__ = "apptool"
+    __tablename__ = "apptool_table"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(index=True)
     link_prod: Mapped[str]
     link_git: Mapped[str]  = mapped_column(unique=True)
 
     #users: Mapped[list["User"]] = relationship(secondary="_appuser",back_populates="apptools")
-    users: Mapped[list["User"]] = relationship("User",secondary="_appuser",back_populates="apptools")
+    #user_ids: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    
+    keyuser: Mapped[User] = mapped_column(ForeignKey("user_table.id"))
+
+    users: Mapped[list[User]] = relationship(secondary="_appuser",back_populates="apptools")
 
     def __str__(self) -> str:
-        return f"{self.name}, {self.link_git}"
+        return f"{self.name}, {self.keyuser}"
 
-
-class User(Base):
-    __tablename__ = "user"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_name: Mapped[str] #= mapped_column(unique=True)
-    first_name: Mapped[str]
-    last_name: Mapped[str]
-    is_active: Mapped[bool] = mapped_column(default=False)
-    is_admin: Mapped[bool] = mapped_column(default=False)
-
-    apptools: Mapped[list[AppTool]] = relationship(secondary="_appuser",back_populates="users")
-
-    def __str__(self):
-        return self.user_name
 
 class AppUser(Base):
     __tablename__="_appuser"
-    id: Mapped[int] = mapped_column(primary_key=True)    
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    app_id:  Mapped[int] = mapped_column(ForeignKey("apptool.id"))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    #name: Mapped[str] # just for streamlit_sql
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
+    app_id:  Mapped[int] = mapped_column(ForeignKey("apptool_table.id"))
 
     def __str__(self):
         return f"{self.user_id} , {self.app_id}"

@@ -11,13 +11,14 @@ from datetime import date
 
 
 def create_user(session: Session):
-    fake = Faker()
-    for i in range(1000):
+    Faker.seed(100)
+    fake = Faker()    
+    for i in range(100):
         user = db.User(
-            user_name=fake.user_name(),
+            user_name=fake.unique.user_name(),
             last_name=fake.last_name(),
             first_name=fake.first_name(),
-            apptools=[]
+            #apptools_ids=[]
         )
         session.add(user)
 
@@ -25,23 +26,26 @@ def create_user(session: Session):
 
 
 def create_apptool(session: Session):
-    fake = Faker()
-    for i in range(100):
+    Faker.seed(100)
+    fake = Faker()    
+    for i in range(10):
 #        stmt = select(db.AppTool.id).order_by(func.random()).limit(1)
 #        user_id = session.execute(stmt).scalar_one()
 
         apptool = db.AppTool(
-            name=fake.city(),
+            name=fake.unique.word(),
             link_prod=fake.uri_path(),
-            link_git=fake.url(),            
+            link_git=fake.unique.url(),  
+            keyuser=fake.user_name()          
         )
         session.add(apptool)
 
     session.commit()
 
 def create_appuser(session: Session):
+    Faker.seed(100)
     fake = Faker()
-    for i in range(1000):
+    for i in range(100):
         stmt = select(db.AppTool.id).order_by(func.random()).limit(1)
         apptool_id = session.execute(stmt).scalar_one()
         stmt = select(db.User.id).order_by(func.random()).limit(1)
@@ -96,10 +100,10 @@ if __name__ == "__main__":
     with Session(engine) as s:
         data = s.execute(stmt).all()
         print(data[0][0])
-        user1 = s.query(db.User).filter_by(user_name='james50').first()
+        user1 = s.query(db.User).first()
         apps = [app.name for app in user1.apptools]
         print(apps)
 
-        app1 = s.query(db.AppTool).filter_by(name='Martinburgh').first()
+        app1 = s.query(db.AppTool).first()
         apps = [user.user_name for user in app1.users]
         print(apps)

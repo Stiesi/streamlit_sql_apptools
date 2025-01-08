@@ -38,10 +38,13 @@ btn_col2.link_button(
 
 
 def User():
-    def fill_by_2(row: pd.Series):
+    def fill_alternating(row: pd.Series):
         nlen = len(row)
-        res = [ "background-color: cyan" if i%2==1 else "background-color: pink" for i in range(nlen)] 
-        return res
+        if (row.name)%2==1:
+            res = [ "background-color: lightgrey"] 
+        else:
+            res = ["background-color: wheat"] 
+        return res *nlen
     
     def fill_by_value(row: pd.Series):
         if row.id > 4:
@@ -73,7 +76,7 @@ def User():
         #rolling_total_column="annual_income",
         available_filter=["user_name", "apptools"],
         base_key="usr",        
-        style_fn=fill_by_2,
+        style_fn=fill_alternating,
         update_show_many=True
     )
 
