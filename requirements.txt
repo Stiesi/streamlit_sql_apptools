@@ -8,5 +8,6 @@ aiosqlite
 sqlalchemy
 sqlalchemy_utils
 
+sqlmodel
 streamlit_sql==0.2.4
 Faker

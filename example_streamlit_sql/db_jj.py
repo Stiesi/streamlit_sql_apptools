@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
 
-from sqlalchemy import Engine, ForeignKey, create_engine,PrimaryKeyConstraint
+from sqlalchemy import Engine, ForeignKey
+#, create_engine,PrimaryKeyConstraint
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -10,12 +11,16 @@ from sqlalchemy.orm import (
     relationship,
 )
 from sqlalchemy_utils import create_database, database_exists
+from sqlalchemy.orm import sessionmaker
+
+from sqlmodel import Field, SQLModel, create_engine  
 
 
 class Base(DeclarativeBase):
     pass
 
-
+class SBase(SQLModel):
+    pass
 
 class User(Base):
     __tablename__ = "user_table"
@@ -75,15 +80,41 @@ def create_tables(engine: Engine):
     Base.metadata.create_all(engine)
 
 
-if __name__ == "__main__":
-    db_path = "sqlite:///./data.db"
-    if not database_exists(db_path):
-        create_database(db_path)
-        url = make_url(db_path)
-        print(
-            f"Database created on {url.host}, port {url.port}, database {url.database}"
-        )
+db_path = "sqlite:///./data.db"
+if not database_exists(db_path):
+    create_database(db_path)
+    url = make_url(db_path)
+    print(
+        f"Database created on {url.host}, port {url.port}, database {url.database}"
+    )
 
-    engine = new_engine(db_path)
-    create_tables(engine)
+db = new_engine(db_path)
+
+SessionLocal = sessionmaker(bind=db)
+print (f'Session created')
+try:
+    print (f'name {db.name}')
+    print (f'host {db.url.host}')
+    #print(SessionLocal.info()) 
+except:
+    print('Error in sessionmaker')
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db        
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    #db_path = "sqlite:///./data.db"
+    #if not database_exists(db_path):
+    #    create_database(db_path)
+    #    url = make_url(db_path)
+    #    print(
+    #        f"Database created on {url.host}, port {url.port}, database {url.database}"
+    #    )
+
+    #engine = new_engine(db_path)
+    create_tables(db)
     print("created")
