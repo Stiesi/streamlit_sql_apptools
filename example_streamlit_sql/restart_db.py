@@ -85,7 +85,7 @@ if __name__ == "__main__":
     db_path = "sqlite:///./data.db"
     engine = db.new_engine(db_path)
 
-    if 0:
+    if 1:
         db.Base.metadata.drop_all(engine)
         db.Base.metadata.create_all(engine)
         with Session(engine) as s:

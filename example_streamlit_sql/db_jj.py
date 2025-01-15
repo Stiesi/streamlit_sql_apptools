@@ -61,8 +61,8 @@ class AppUser(Base):
     __tablename__="_appuser"
     id: Mapped[int] = mapped_column(primary_key=True)
     #name: Mapped[str] # just for streamlit_sql
-    user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
-    app_id:  Mapped[int] = mapped_column(ForeignKey("apptool_table.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))#,primary_key=True)
+    app_id:  Mapped[int] = mapped_column(ForeignKey("apptool_table.id"))#,primary_key=True)
 
     def __str__(self):
         return f"{self.user_id} , {self.app_id}"
